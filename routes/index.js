@@ -1,9 +1,16 @@
-module.exports =  (router) => {
-  router.get('/welcome', async function (ctx, next) {
-    ctx.state = {
-      title: 'koa2 title'
-    };
+const compose = require('koa-compose')
+const glob = require('glob')
+const { resolve } = require('path');
 
-    await ctx.render('welcome', {title: ctx.state});
-  })
+routerRegistor = () => {
+    let routers = [];
+    glob.sync(resolve(__dirname, './', '**/*.js'))
+        .filter(value => (value.indexOf('index.js') === -1))
+        .map(router => {
+            routers.push(require(router).routes())
+            routers.push(require(router).allowedMethods())
+        })
+    return compose(routers)
 }
+
+module.exports = routerRegistor
