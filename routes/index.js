@@ -4,6 +4,7 @@ const { resolve } = require('path');
 
 routerRegistor = () => {
     let routers = [];
+    // 自动扫描routes目录下的js文件 添加路由
     glob.sync(resolve(__dirname, './', '**/*.js'))
         .filter(value => (value.indexOf('index.js') === -1))
         .map(router => {
