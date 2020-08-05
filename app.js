@@ -1,29 +1,32 @@
 const Koa = require('koa')
-const logger = require('koa-logger')
-const router = require('./routes/index')
-const config = require('./config/default')
-const mysqlQuery = require('./mysql/index')
-const static = require('koa-static')
-const path = require('path')
 const app = new Koa()
+const Router = require('koa-router')
+const router = new Router()
+const fs = require('fs')
+const server = require('http').createServer(app.callback())
+const io = require('socket.io')(server)
 
-// app.use(async ctx => {
-//   const data = await mysqlQuery()
-//   ctx.type = 'json'
-//   ctx.body = {
-//     'code': 200,
-//     'data': data,
-//     'msg': 'ok'
-//   }
-// })
+// 首页路由
+router.get('/', ctx => {
+  ctx.response.type = 'html'
+  ctx.response.body = fs.createReadStream('./views/index.html')
+})
 
-// 访问根目录的静态资源
-app.use(static(path.join(__dirname)))
-  // 路由
-  .use(router())
-  // 日志输出
-  .use(logger())
-// 端口监听
-app.listen(config.port)
+app.use(router.routes())
 
-console.log(`listening on port ${config.port}`)
+io.on('connection', socket => {
+  console.log('user connected')
+  socket.on('from client message', msg => {
+    console.log(`1message: ${msg}`)
+    io.emit('from server', msg)
+  })
+})
+
+// setInterval(() => {
+//   let cnt = 0
+//   io.emit('from server', cnt++)
+// }, 1000);
+
+server.listen(3000, () => {
+  console.log('listening on : 3000')
+})
