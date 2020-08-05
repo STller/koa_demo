@@ -15,17 +15,21 @@ router.get('/', ctx => {
 app.use(router.routes())
 
 io.on('connection', socket => {
-  console.log('user connected')
+  // console.log('user connected')
   socket.on('from client message', msg => {
-    console.log(`1message: ${msg}`)
+    console.log(`message: ${msg}`)
     io.emit('from server', msg)
+  })
+  socket.on('disconnect', () => {
+    // console.log('disconnect')
   })
 })
 
-// setInterval(() => {
-//   let cnt = 0
-//   io.emit('from server', cnt++)
-// }, 1000);
+let cnt = 0
+setInterval(() => {
+  io.emit('from server', cnt++)
+  // console.log(cnt)
+}, 1000);
 
 server.listen(3000, () => {
   console.log('listening on : 3000')
